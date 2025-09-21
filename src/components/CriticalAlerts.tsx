@@ -32,19 +32,9 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({ compact = false }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const { toast } = useToast();
 
-  // Mock alerts data
+  // Mock alerts data + SOS alerts from localStorage
   useEffect(() => {
     const mockAlerts: Alert[] = [
-      {
-        id: "1",
-        type: "sos",
-        touristName: "Michael Brown",
-        message: "Emergency assistance requested - Lost and unable to find way back",
-        location: "Barcelona Old Town, Spain",
-        timestamp: "2 minutes ago",
-        priority: "high",
-        status: "active"
-      },
       {
         id: "2",
         type: "geofence",
@@ -77,7 +67,51 @@ const CriticalAlerts: React.FC<CriticalAlertsProps> = ({ compact = false }) => {
       }
     ];
 
-    setAlerts(mockAlerts);
+    // Get SOS alerts from localStorage
+    const sosAlerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+    const allAlerts = [...sosAlerts, ...mockAlerts];
+
+    setAlerts(allAlerts);
+    // Refresh alerts every 10 seconds to pick up new SOS alerts
+    const interval = setInterval(() => {
+      const sosAlerts = JSON.parse(localStorage.getItem('sosAlerts') || '[]');
+      const mockAlerts: Alert[] = [
+        {
+          id: "2",
+          type: "geofence",
+          touristName: "Emma Johnson",
+          message: "Tourist moved outside designated safe zone",
+          location: "Near Colosseum, Rome",
+          timestamp: "5 minutes ago",
+          priority: "medium",
+          status: "acknowledged"
+        },
+        {
+          id: "3",
+          type: "emergency",
+          touristName: "Sarah Davis",
+          message: "Medical emergency - Requesting immediate assistance",
+          location: "Amsterdam Central, Netherlands",
+          timestamp: "12 minutes ago",
+          priority: "high",
+          status: "resolved"
+        },
+        {
+          id: "4",
+          type: "geofence",
+          touristName: "David Wilson",
+          message: "Approaching restricted area boundary",
+          location: "Checkpoint Charlie, Berlin",
+          timestamp: "18 minutes ago",
+          priority: "low",
+          status: "active"
+        }
+      ];
+      const allAlerts = [...sosAlerts, ...mockAlerts];
+      setAlerts(allAlerts);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleAcknowledge = (alertId: string) => {

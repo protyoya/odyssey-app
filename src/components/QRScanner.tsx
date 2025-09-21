@@ -168,15 +168,49 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan }) => {
         <div className="text-center space-y-4">
           <h3 className="text-lg font-semibold text-foreground">Camera Scanner</h3>
           
-          {/* Camera preview simulation */}
-          <div className="relative mx-auto w-64 h-64 border-2 border-primary rounded-lg overflow-hidden bg-gradient-to-br from-primary/5 to-accent/5">
-            <div className="absolute inset-4 border border-primary/30 rounded-lg">
+          {/* Real camera preview */}
+          <div className="relative mx-auto w-64 h-64 border-2 border-primary rounded-lg overflow-hidden bg-black">
+            <video
+              ref={(video) => {
+                if (video && !isScanning) {
+                  navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                      facingMode: 'environment',
+                      width: { ideal: 1280 },
+                      height: { ideal: 720 }
+                    } 
+                  })
+                  .then(stream => {
+                    video.srcObject = stream;
+                    video.play();
+                  })
+                  .catch(err => {
+                    console.error('Error accessing camera:', err);
+                    toast({
+                      title: "Camera Access Denied",
+                      description: "Please allow camera access to scan QR codes",
+                      variant: "destructive",
+                    });
+                  });
+                }
+              }}
+              className="w-full h-full object-cover"
+              autoPlay
+              playsInline
+              muted
+            />
+            
+            {/* Scanning overlay */}
+            <div className="absolute inset-4 border border-primary/50 rounded-lg pointer-events-none">
               <div className="w-full h-full flex items-center justify-center">
-                <Camera className="w-12 h-12 text-primary/50" />
+                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary"></div>
+                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary"></div>
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary"></div>
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-primary"></div>
               </div>
             </div>
             
-            {/* Scanning overlay */}
+            {/* Scanning line animation */}
             <div className="absolute top-8 left-8 right-8 h-0.5 bg-primary animate-pulse"></div>
           </div>
           
@@ -191,7 +225,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan }) => {
             className="flex-1 bg-gradient-hero hover:shadow-glow transition-all duration-300"
           >
             <Scan className="w-4 h-4 mr-2" />
-            Start Scanning
+            Detect QR Code
           </Button>
           <Button
             onClick={() => setScanMethod(null)}

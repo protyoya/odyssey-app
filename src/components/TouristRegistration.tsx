@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, QrCode, Share2, Clock } from "lucide-react";
+import { MapPin, QrCode, Share2, Clock, AlertTriangle } from "lucide-react";
 import QRCodeDisplay from "./QRCodeDisplay";
 import LocationSharing from "./LocationSharing";
+import EmergencyButton from "./EmergencyButton";
+import NewsFeed from "./NewsFeed";
 
 interface TouristData {
   name: string;
@@ -88,6 +90,13 @@ const TouristRegistration = () => {
                 )}
               </CardContent>
             </Card>
+
+            <EmergencyButton 
+              touristName={formData.name} 
+              location={formData.destination}
+            />
+
+            <NewsFeed destination={formData.destination} />
           </div>
         </div>
       </div>
